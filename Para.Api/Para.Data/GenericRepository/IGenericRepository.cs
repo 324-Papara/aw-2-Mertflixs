@@ -14,4 +14,5 @@ public interface IGenericRepository<TEntity> where TEntity : class
     Task<List<TEntity>> GetAll();
     Task<List<TEntity>> GetAllWithIncludes(params Expression<Func<TEntity, object>>[] includes);
     Task<List<TEntity>> Where(Expression<Func<TEntity, bool>> predicate);
+    IQueryable<TEntity> Include(params Expression<Func<TEntity, object>>[] includes);
 }

@@ -24,7 +24,8 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return await dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == Id);
     }
 
-    public async Task<TEntity> GetByIdWithIncludes(long Id, params Expression<Func<TEntity, object>>[] includes) {
+    public async Task<TEntity> GetByIdWithIncludes(long Id, params Expression<Func<TEntity, object>>[] includes)
+    {
         IQueryable<TEntity> query = dbContext.Set<TEntity>();
         query = includes.Aggregate(query, (current, include) => current.Include(include));
 
@@ -57,17 +58,31 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     public async Task<List<TEntity>> GetAll()
     {
-       return await dbContext.Set<TEntity>().ToListAsync();
+        return await dbContext.Set<TEntity>().ToListAsync();
     }
 
-    public async Task<List<TEntity>> GetAllWithIncludes(params Expression<Func<TEntity, object>>[] includes) {
+    public async Task<List<TEntity>> GetAllWithIncludes(params Expression<Func<TEntity, object>>[] includes)
+    {
         IQueryable<TEntity> query = dbContext.Set<TEntity>();
         query = includes.Aggregate(query, (current, include) => current.Include(include));
 
         return await query.ToListAsync();
     }
 
-    public async Task<List<TEntity>> Where(Expression<Func<TEntity, bool>> predicate) {
+    public async Task<List<TEntity>> Where(Expression<Func<TEntity, bool>> predicate)
+    {
         return await dbContext.Set<TEntity>().Where(predicate).ToListAsync();
+    }
+
+    public IQueryable<TEntity> Include(params Expression<Func<TEntity, object>>[] includes)
+    {
+        IQueryable<TEntity> queryable = dbContext.Set<TEntity>();
+
+        foreach (var include in includes)
+        {
+            queryable = queryable.Include(include);
+        }
+
+        return queryable;
     }
 }

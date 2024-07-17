@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Para.Data.Domain;
 using Para.Data.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Para.Api.Controllers
 {
@@ -15,41 +17,15 @@ namespace Para.Api.Controllers
             this.unitOfWork = unitOfWork;
         }
 
-
-       /*  [HttpGet]
-        public async Task<List<Customer>> Get()
-        {
-            var entityList = await unitOfWork.CustomerRepository.GetAll();
-            return entityList;
-        } */
-
         [HttpGet]
-        public async Task<List<Customer>> GetAllInc() {
-            var entityList = await unitOfWork.CustomerRepository.GetAllWithIncludes(
-                c => c.CustomerAddresses,
-                c => c.CustomerPhones,
-                c => c.CustomerDetail
-            );
-
+        public async Task<List<Customer>> Get() {
+            var entityList = await unitOfWork.CustomerRepository.GetAll();
             return entityList;
         }
 
-        /* [HttpGet("{customerId}")]
-        public async Task<Customer> Get(long customerId)
-        {
-            var entity = await unitOfWork.CustomerRepository.GetById(customerId);
-            return entity;
-        } */
-
         [HttpGet("{customerId}")]
-        public async Task<Customer> GetByIdInc(long customerId) {
-            var entity = await unitOfWork.CustomerRepository.GetByIdWithIncludes(
-                customerId, 
-                c => c.CustomerAddresses,
-                c => c.CustomerPhones,
-                c => c.CustomerDetail
-            );
-
+        public async Task<Customer> Get(long customerId) {
+            var entity = await unitOfWork.CustomerRepository.GetById(customerId);
             return entity;
         }
 
@@ -62,7 +38,7 @@ namespace Para.Api.Controllers
             await unitOfWork.Complete();
         }
 
-        /* [HttpPut("{customerId}")]
+        [HttpPut("{customerId}")]
         public async Task Put(long customerId, [FromBody] Customer value)
         {
             await unitOfWork.CustomerRepository.Update(value);
@@ -74,12 +50,26 @@ namespace Para.Api.Controllers
         {
             await unitOfWork.CustomerRepository.Delete(customerId);
             await unitOfWork.Complete();
-        } */
+        }
 
         [HttpGet("byLastname/{lastName}")]
         public async Task<List<Customer>> GetByLastName(string lastName) {
             var customerLastName = await unitOfWork.CustomerRepository.Where(c => c.LastName == lastName);
             return customerLastName;
+        }
+
+        [HttpGet("GetCustomerByFirstName/{name}")]
+        public async Task<List<Customer>> GetCustomerByFirstName(string name)
+        {
+            var customers = await unitOfWork.CustomerRepository.Where(x => x.FirstName == name);
+            return customers;
+        }
+
+        [HttpGet("GetCustomerWithCustomerDetails")]
+        public async Task<List<Customer>> GetCustomerWithCustomerDetails()
+        {
+            var customers = await unitOfWork.CustomerRepository.Include(x => x.CustomerDetail).ToListAsync();
+            return customers;
         }
     }
 }

@@ -3,23 +3,26 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Para.Data.Context;
 using Para.Data.UnitOfWork;
+using FluentValidation.AspNetCore;
+using Para.Bussiness.Validation;
 
 namespace Para.Api;
 
 public class Startup
 {
     public IConfiguration Configuration;
-    
+
     public Startup(IConfiguration configuration)
     {
         this.Configuration = configuration;
     }
-    
-    
+
+
     public void ConfigureServices(IServiceCollection services)
     {
-               
-        services.AddControllers().AddJsonOptions(options =>
+
+        services.AddControllers()
+        .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             options.JsonSerializerOptions.WriteIndented = true;
@@ -32,9 +35,13 @@ public class Startup
 
         var connectionStringSql = Configuration.GetConnectionString("MsSqlConnection");
         services.AddDbContext<ParaSqlDbContext>(options => options.UseSqlServer(connectionStringSql));
-        
-        var connectionStringPostgre = Configuration.GetConnectionString("PostgresSqlConnection");
-        services.AddDbContext<ParaPostgreDbContext>(options => options.UseNpgsql(connectionStringPostgre));
+
+        //FluentValidation Added
+        services.AddControllers()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CustomerValidator>());
+
+        /* var connectionStringPostgre = Configuration.GetConnectionString("PostgresSqlConnection");
+        services.AddDbContext<ParaPostgreDbContext>(options => options.UseNpgsql(connectionStringPostgre)); */
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
