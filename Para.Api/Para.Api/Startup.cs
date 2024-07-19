@@ -22,12 +22,13 @@ public class Startup
     {
 
         services.AddControllers()
-        .AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-            options.JsonSerializerOptions.WriteIndented = true;
-            options.JsonSerializerOptions.PropertyNamingPolicy = null;
-        });
+                 .AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<CustomerValidator>())
+                 .AddJsonOptions(options =>
+             {
+                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                 options.JsonSerializerOptions.WriteIndented = true;
+                 options.JsonSerializerOptions.PropertyNamingPolicy = null;
+             });
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "Para.Api", Version = "v1" });
@@ -35,10 +36,6 @@ public class Startup
 
         var connectionStringSql = Configuration.GetConnectionString("MsSqlConnection");
         services.AddDbContext<ParaSqlDbContext>(options => options.UseSqlServer(connectionStringSql));
-
-        //FluentValidation Added
-        services.AddControllers()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CustomerValidator>());
 
         /* var connectionStringPostgre = Configuration.GetConnectionString("PostgresSqlConnection");
         services.AddDbContext<ParaPostgreDbContext>(options => options.UseNpgsql(connectionStringPostgre)); */
